@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Obsidian で開く</title>
+  </head>
+  <body>
+    <p id="message">Obsidian のリンクを確認しています。</p>
+    <script>
+      (() => {
+        const message = document.getElementById("message");
+        try {
+          const fragment = decodeURIComponent(window.location.hash.slice(1));
+          const separator = fragment.indexOf("/");
+          const vault = fragment.slice(0, separator);
+          const path = fragment.slice(separator + 1);
+          if (
+            separator < 1 ||
+            !/^[A-Za-z0-9_-]{1,64}$/.test(vault) ||
+            !path ||
+            path.startsWith("/") ||
+            path.includes("..") ||
+            path.includes("\\") ||
+            !path.endsWith(".md")
+          ) {
+            message.textContent = "この Obsidian リンクは開けません。リンクを確認してください。";
+            return;
+          }
+
+          const target = new URL("obsidian://open");
+          target.searchParams.set("vault", vault);
+          target.searchParams.set("file", path);
+          window.location.replace(target.toString());
+        } catch {
+          message.textContent = "この Obsidian リンクは開けません。リンクを確認してください。";
+        }
+      })();
+    </script>
+  </body>
+</html>
